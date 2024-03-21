@@ -3,6 +3,8 @@
     "axios": "^1.6.8",
     "experss": "^0.0.1-security",
     "express": "^4.18.3",
-    "mongodb": "^6.5.0"
+    "moment": "^2.30.1",
+    "mongodb": "^6.5.0",
+    "mongoose": "^8.2.2"
   }
 }
