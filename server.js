@@ -34,14 +34,16 @@ let cacheTimestamp = Date.now();
 async function updatePopularSearchesCache() {
   const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   try {
-    const results = await Search.aggregate([
-      { $match: { createdAt: { $gte: oneWeekAgo } } },
-      { $group: { _id: "$searchPhrase", hits: { $sum: 1 } } },
-      { $sort: { hits: -1 } },
-      { $limit: 100 },
-    ]);
-    popularSearchesCache = results;
-    cacheTimestamp = Date.now();
+    if (db.readyState === 1) {
+      const results = await Search.aggregate([
+        { $match: { createdAt: { $gte: oneWeekAgo } } },
+        { $group: { _id: "$searchPhrase", hits: { $sum: 1 } } },
+        { $sort: { hits: -1 } },
+        { $limit: 100 },
+      ]);
+      popularSearchesCache = results;
+      cacheTimestamp = Date.now();
+    }
   } catch (err) {
     console.error("Error updating cache: ", err);
   }
@@ -104,23 +106,14 @@ app.get("/lastSearches", async (req, res) => {
   }
 });
 
-// app.get("/lastSearches", async (req, res) => {
-//   const { userId, limit = 10 } = req.query; //need to check
-//   try {
-//     const searches = await Search.find({ userId })
-//       .sort({ createdAt: -1 })
-//       .limit(parseInt(limit));
-
-//     res.json({ lastSearches: searches.map((search) => search.searchPhrase) });
-//   } catch (err) {
-//     console.error("Error fetching last searches: ", err);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
 // Get the most popular searches
 app.get("/mostPopular", async (req, res) => {
-  const limit = parseInt(req.query.limit) || 10;
+  let limit = req.query.limit;
+  // Check if limit is a valid integer and greater than 0
+  limit = parseInt(limit, 10); // Parse limit to integer. The radix 10 ensures it's parsed as a decimal number.
+  if (isNaN(limit) || limit <= 0) {
+    return res.status(400).json({ error: "Limit must be a positive integer." });
+  }
   const currentTime = Date.now();
   const timeSinceLastUpdate = (currentTime - cacheTimestamp) / 1000; // Time in seconds
 

@@ -1,10 +1,5 @@
 const axios = require("axios");
-const {
-  requestsGet,
-  requestsPost,
-  requestsPut,
-  requestsDelete,
-} = require("./requestsFromServer"); // Assuming you have stored the functions in a file named clientFunctions.js
+const { requestsGet, requestsPost } = require("./requestsFromServer"); // Assuming you have stored the functions in a file named clientFunctions.js
 
 async function main() {
   try {
@@ -36,14 +31,9 @@ async function main() {
     console.log("GET /lastSearches Response Data:", lastSearchesResponse.data); // Print the response data
 
     // Perform GET request to /mostPopular API
-    const mostPopularResponse = await requestsGet("/mostPopular?limit=2");
-    //console.log("GET /mostPopular Response:", mostPopularResponse);
+    const mostPopularResponse = await requestsGet("/mostPopular?limit=4");
     console.log("GET /mostPopular Status Code:", mostPopularResponse.status); // Print the status code
     console.log("GET /mostPopular Response Data:", mostPopularResponse.data); // Print the response data
-
-    // // Perform DELETE request to /lastSearch API
-    // const deleteResponse = await requestsDelete("/lastSearch");
-    // console.log("DELETE /lastSearch Response:", deleteResponse);
   } catch (error) {
     console.log("line 45");
     console.error("Error:", error.message);
